@@ -1,0 +1,21 @@
+{
+    "dataSource": "parser",
+    "destinationBucket": "parser-stage",
+    "sourceBucket": "parser-raw",
+    "sqlBucket": "sql-bucket",
+    "fileSystem": "file",
+    "mappings": [
+        {
+            "sourceFiles": [
+                "parserfile1.csv"
+            ],
+            "sqlFile": "sql1.sql"
+        }
+        ,{
+            "sourceFiles": [
+                "file1.csv", "file2.csv"
+            ],
+            "sqlFile": "sql2.sql"
+        }
+    ]
+}

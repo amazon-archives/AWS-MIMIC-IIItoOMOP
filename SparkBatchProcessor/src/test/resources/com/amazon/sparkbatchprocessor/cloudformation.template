@@ -1,0 +1,29 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "1ba9db7b-adcf-477a-98fb-c8794e0b9614": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 370,
+          "y": 230
+        },
+        "z": 0
+      }
+    }
+  },
+  "Resources": {
+    "S3B38VVO": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {},
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "1ba9db7b-adcf-477a-98fb-c8794e0b9614"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+        "SecurityGroup" : {
+          "Type" : "String",
+          "Description" : "The Security Group ID for the Redshift cluster."
+        },
+        "SubnetId" : {
+          "Type" : "String",
+          "Description" : "The Subnet ID for the EC2 Instance."
+        },
+        "IP" : {
+          "Type" : "String",
+          "Description" : "The CidrIp block of the addresses you want to allow to connect to Redshift."
+        },
+        "Username" : {
+          "Type" : "String",
+          "Description" : "The Master Username for the Redshift Cluster."
+        },
+        "Password" : {
+          "Type" : "String",
+          "Description" : "The Master Password for the Redshift Cluster."
+        }
+      },
+  "Resources": {
+    "RedshiftRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "redshift.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "RedshiftRole",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:Get*",
+                    "s3:List*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "RedshiftIngress": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": { "Ref": "SecurityGroup" },
+        "IpProtocol": "tcp",
+        "FromPort": "5439",
+        "ToPort": "5439",
+        "CidrIp": { "Ref": "IP" }
+      }
+    },
+    "EC2Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2008-10-17",
+          "Statement": [
+            {
+              "Sid": "",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "EC2Role",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": [
+                    "ec2:Describe*",
+                    "redshift:ModifyClusterIamRoles"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "iam:PassRole",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "RedshiftRole",
+                      "Arn"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "EC2InstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "EC2Role"
+          }
+        ]
+      }
+    },
+    "RedshiftCluster": {
+      "Type": "AWS::Redshift::Cluster",
+      "Properties": {
+        "AllowVersionUpgrade": false,
+        "AutomatedSnapshotRetentionPeriod": 0,
+        "AvailabilityZone": { "Fn::Join": [
+            "",
+            [
+              { "Ref": "AWS::Region" }
+              , "b"
+            ]
+          ] },
+        "ClusterSubnetGroupName": "default",
+        "ClusterType": "single-node",
+        "DBName": "omop",
+        "MasterUsername": { "Ref": "Username" },
+        "MasterUserPassword": { "Ref": "Password" },
+        "NodeType": "dc1.large",
+        "PubliclyAccessible": true,
+        "VpcSecurityGroupIds": [ { "Ref": "SecurityGroup" } ]
+      }
+    },
+    "EC2Istance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-f173cc91",
+        "InstanceType": "t2.micro",
+        "IamInstanceProfile": { "Ref": "EC2InstanceProfile" },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "SubnetId": { "Ref": "SubnetId" },
+            "DeviceIndex": "0"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash \n",
+                "exec > /tmp/part-001.log 2>&1 \n",
+                "aws redshift modify-cluster-iam-roles ",
+                " --cluster-identifier ", { "Ref": "RedshiftCluster" },
+                " --add-iam-roles ", { "Fn::GetAtt": [ "RedshiftRole", "Arn" ] },
+                " --region ", { "Ref": "AWS::Region" }
+              ]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

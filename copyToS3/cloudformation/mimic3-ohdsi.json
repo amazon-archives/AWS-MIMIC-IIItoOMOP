@@ -1,0 +1,417 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+        "SecurityGroup" : {
+          "Type" : "String",
+          "Description" : "The Security Group ID for the Redshift cluster."
+        },
+        "SubnetId" : {
+          "Type" : "String",
+          "Description" : "The Subnet ID for the EC2 Instance."
+        },
+        "Username" : {
+          "Type" : "String",
+          "Description" : "The Master Username for the Redshift Cluster."
+        },
+        "Password" : {
+          "Type" : "String",
+          "Description" : "The Master Password for the Redshift Cluster."
+        },
+        "RedshiftRoleArn" : {
+          "Type" : "String",
+          "Description" : "The Arn for the Redshift Role that was created in the Redshift CloudFormation template."
+        },
+        "RedshiftEndpoint" : {
+          "Type" : "String",
+          "Description" : "The endpoint for the Redshift Cluster that was created in the Redshift CloudFormation template."
+        },
+        "Bucket" : {
+          "Type" : "String",
+          "Description" : "The bucket that was created to hold the SQL and config files."
+        }
+    },
+  "Resources": {
+    "EMRRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2008-10-17",
+          "Statement": [
+            {
+              "Sid": "",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "elasticmapreduce.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "EMRRole",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": [
+                    "ec2:AuthorizeSecurityGroupEgress",
+                    "ec2:AuthorizeSecurityGroupIngress",
+                    "ec2:CancelSpotInstanceRequests",
+                    "ec2:CreateNetworkInterface",
+                    "ec2:CreateSecurityGroup",
+                    "ec2:CreateTags",
+                    "ec2:DeleteNetworkInterface",
+                    "ec2:DeleteSecurityGroup",
+                    "ec2:DeleteTags",
+                    "ec2:DescribeAvailabilityZones",
+                    "ec2:DescribeAccountAttributes",
+                    "ec2:DescribeDhcpOptions",
+                    "ec2:DescribeInstanceStatus",
+                    "ec2:DescribeInstances",
+                    "ec2:DescribeKeyPairs",
+                    "ec2:DescribeNetworkAcls",
+                    "ec2:DescribeNetworkInterfaces",
+                    "ec2:DescribePrefixLists",
+                    "ec2:DescribeRouteTables",
+                    "ec2:DescribeSecurityGroups",
+                    "ec2:DescribeSpotInstanceRequests",
+                    "ec2:DescribeSpotPriceHistory",
+                    "ec2:DescribeSubnets",
+                    "ec2:DescribeVpcAttribute",
+                    "ec2:DescribeVpcEndpoints",
+                    "ec2:DescribeVpcEndpointServices",
+                    "ec2:DescribeVpcs",
+                    "ec2:DetachNetworkInterface",
+                    "ec2:ModifyImageAttribute",
+                    "ec2:ModifyInstanceAttribute",
+                    "ec2:RequestSpotInstances",
+                    "ec2:RevokeSecurityGroupEgress",
+                    "ec2:RunInstances",
+                    "ec2:TerminateInstances",
+                    "ec2:DeleteVolume",
+                    "ec2:DescribeVolumeStatus",
+                    "ec2:DescribeVolumes",
+                    "ec2:DetachVolume",
+                    "iam:GetRole",
+                    "iam:GetRolePolicy",
+                    "iam:ListInstanceProfiles",
+                    "iam:ListRolePolicies",
+                    "iam:PassRole",
+                    "s3:CreateBucket",
+                    "s3:Get*",
+                    "s3:List*",
+                    "sdb:BatchPutAttributes",
+                    "sdb:Select",
+                    "sqs:CreateQueue",
+                    "sqs:Delete*",
+                    "sqs:GetQueue*",
+                    "sqs:PurgeQueue",
+                    "sqs:ReceiveMessage",
+                    "cloudwatch:PutMetricAlarm",
+                    "cloudwatch:DescribeAlarms",
+                    "cloudwatch:DeleteAlarms",
+                    "application-autoscaling:RegisterScalableTarget",
+                    "application-autoscaling:DeregisterScalableTarget",
+                    "application-autoscaling:PutScalingPolicy",
+                    "application-autoscaling:DeleteScalingPolicy",
+                    "application-autoscaling:Describe*"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "LambdaRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "EMRRole",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:*",
+                    "redshift:Describe*",
+                    "redshift:ViewQueriesInConsole",
+                    "ec2:DescribeAccountAttributes",
+                    "ec2:DescribeAddresses",
+                    "ec2:DescribeAvailabilityZones",
+                    "ec2:DescribeSecurityGroups",
+                    "ec2:DescribeSubnets",
+                    "ec2:DescribeVpcs",
+                    "ec2:DescribeInternetGateways",
+                    "sns:Get*",
+                    "sns:List*",
+                    "cloudwatch:Describe*",
+                    "cloudwatch:List*",
+                    "cloudwatch:Get*",
+                    "ec2:DescribeAddresses",
+                    "ec2:DescribeClassicLinkInstances",
+                    "ec2:DescribeCustomerGateways",
+                    "ec2:DescribeDhcpOptions",
+                    "ec2:DescribeFlowLogs",
+                    "ec2:DescribeInternetGateways",
+                    "ec2:DescribeMovingAddresses",
+                    "ec2:DescribeNatGateways",
+                    "ec2:DescribeNetworkAcls",
+                    "ec2:DescribeNetworkInterfaceAttribute",
+                    "ec2:DescribeNetworkInterfaces",
+                    "ec2:DescribePrefixLists",
+                    "ec2:DescribeRouteTables",
+                    "ec2:DescribeSecurityGroups",
+                    "ec2:DescribeSubnets",
+                    "ec2:DescribeTags",
+                    "ec2:DescribeVpcAttribute",
+                    "ec2:DescribeVpcClassicLink",
+                    "ec2:DescribeVpcEndpoints",
+                    "ec2:DescribeVpcEndpointServices",
+                    "ec2:DescribeVpcPeeringConnections",
+                    "ec2:DescribeVpcs",
+                    "ec2:DescribeVpnConnections",
+                    "ec2:DescribeVpnGateways",
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "ec2:CreateNetworkInterface",
+                    "ec2:DescribeAvailabilityZones",
+                    "ec2:DescribeInternetGateways",
+                    "ec2:DescribeSecurityGroups",
+                    "ec2:DescribeSubnets",
+                    "ec2:DescribeVpcs",
+                    "ec2:DeleteNetworkInterface",
+                    "ec2:ModifyNetworkInterfaceAttribute",
+                    "sns:*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "EMREC2Role": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2008-10-17",
+          "Statement": [
+            {
+              "Sid": "",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "EMREC2Role",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": [
+                    "*"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "EMREC2InstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "EMREC2Role"
+          }
+        ]
+      }
+    },
+    "EMRCluster": {
+      "Type": "AWS::EMR::Cluster",
+      "Properties": {
+        "Applications": [
+          {
+            "Name": "Hadoop"
+          },
+          {
+            "Name": "Spark"
+          }
+        ],
+        "Instances": {
+          "MasterInstanceGroup": {
+            "InstanceCount": 1,
+            "InstanceType": "m3.xlarge",
+            "Market": "ON_DEMAND",
+            "Name": "Master"
+          },
+          "CoreInstanceGroup": {
+            "InstanceCount": 1,
+            "InstanceType": "m3.xlarge",
+            "Market": "ON_DEMAND",
+            "Name": "Core"
+          },
+          "Ec2SubnetId": { "Ref": "SubnetId" },
+          "TerminationProtected": false, 
+        },
+        "Name": "SparkEMRCluster",
+        "JobFlowRole": { "Ref": "EMREC2InstanceProfile" },
+          "ServiceRole": {
+                    "Ref": "EMRRole"
+                  },
+        "ReleaseLabel": "emr-5.0.0",
+        "VisibleToAllUsers": true
+      }
+    },
+    "SparkBatchProcessor": {
+      "Type": "AWS::EMR::Step",
+      "Properties": {
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+          "Args": [
+            "spark-submit",
+            "--deploy-mode",
+            "cluster",
+            "--class",
+            "com.amazon.sparkbatchprocessor.Driver",
+            { "Fn::Join": [
+              "",
+              [
+                "s3://",
+                { "Ref": "Bucket" }
+                    , "/jars/SparkBatchProcessor-1.0.0-jar-with-dependencies.jar"
+                  ]
+                ] },
+            { "Ref": "Bucket" },
+            "config/config.json",
+            { "Ref": "AWS::StackName" }
+          ],
+          "Jar": "command-runner.jar"
+        },
+        "Name": "SparkBatchProcessing",
+        "JobFlowId": {
+          "Ref": "EMRCluster"
+        }
+      },
+      "DependsOn": [
+        "EMRCluster"
+      ]
+    },
+    "BatchNotificationLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "SparkBatchProcessing",
+        "Code": {
+          "S3Bucket": { "Ref": "Bucket" },
+          "S3Key": "jars/RedshiftCopier-1.0.0-jar-with-dependencies.jar"
+        },
+        "Timeout": "300",
+        "Runtime": "java8",
+        "MemorySize": 256,
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRole",
+            "Arn"
+          ]
+        },
+        "Handler": "com.amazon.redshiftcopier.Driver::lambda",
+        "Environment": {
+          "Variables": {
+            "bucket": { "Ref": "Bucket" },
+            "prefix": "redshiftSQL",
+            "endpoint": { "Ref": "RedshiftEndpoint" },
+            "port": "5439",
+            "dbname": "omop",
+            "user": { "Ref": "Username" },
+            "password": { "Ref": "Password" } ,
+            "redshift_arn": { "Ref": "RedshiftRoleArn" }
+          }
+        },
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Ref": "SecurityGroup"
+            }
+          ],
+          "SubnetIds": [
+            {
+              "Ref": "SubnetId"
+            }
+          ]
+        }
+      }
+    },
+    "SNSCompletionTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "TopicName": "SparkBatchLoaderTableCompletion",
+        "DisplayName": "SparkBatchLoaderTableCompletion"
+      }
+    },
+    "SNSFailureTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "TopicName": "SparkBatchLoaderTableFailure",
+        "DisplayName": "SparkBatchLoaderTableFailure"
+      }
+    },
+    "LambdaSuccessPermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:invokeFunction",
+        "Principal": "sns.amazonaws.com",
+        "SourceArn": {
+          "Ref": "SNSCompletionTopic"
+        },
+        "FunctionName": {
+          "Ref": "BatchNotificationLambdaFunction"
+        }
+      },
+      "DependsOn": [ "BatchNotificationLambdaFunction", "SNSCompletionTopic" ]
+    },
+    "SuccessSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "Endpoint": { "Fn::GetAtt": [ "BatchNotificationLambdaFunction", "Arn" ] },
+        "Protocol": "lambda",
+        "TopicArn": { "Ref": "SNSCompletionTopic" }
+      },
+      "DependsOn": [ "LambdaSuccessPermission" ]
+    },
+    "ClusterSubnetGroup": {
+      "Type": "AWS::Redshift::ClusterSubnetGroup",
+      "Properties": {
+        "Description": "Subnet group for private VPC for Redshift cluster",
+        "SubnetIds": [ { "Ref": "SubnetId" } ]
+      }
+    }
+  }
+}

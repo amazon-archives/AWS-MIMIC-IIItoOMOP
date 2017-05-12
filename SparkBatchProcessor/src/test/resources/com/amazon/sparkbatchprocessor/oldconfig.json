@@ -1,0 +1,21 @@
+[{
+	"sourceBucket": "bucket1-raw",
+	"sourceFiles": ["file1.csv"],
+	"sourceTables": ["file1"],
+	"destinationFile": "dest-file1.csv",
+	"destinationBucket": "bucket1-stage",
+	"destinationTable": "dest-file1",
+	"sqlBucket": "sql-bucket",
+	"sqlFile": "sql1.sql",
+        "fileSystem": "file"
+}, {
+	"sourceBucket": "bucket2-raw",
+	"sourceFiles": ["file1.csv", "file2.csv"],
+	"sourceTables": ["file1", "file2"],
+	"destinationFile": "dest-file2.csv",
+	"destinationBucket": "bucket2-stage",
+	"destinationTable": "dest-file2",
+	"sqlBucket": "sql-bucket",
+	"sqlFile": "sql2.sql",
+        "fileSystem": "file"
+}]

@@ -1,0 +1,21 @@
+[{
+	"sourceBucket": "parser-raw",
+	"sourceFiles": ["parserfile1.csv"],
+	"sourceTables": ["parserfile1"],
+	"destinationFile": "parser-file1.csv",
+	"destinationBucket": "parser-stage",
+	"destinationTable": "parser-file1",
+	"sqlBucket": "sql-bucket",
+	"sqlFile": "sql1.sql",
+        "fileSystem": "file"
+}, {
+	"sourceBucket": "parser2-raw",
+	"sourceFiles": ["file1.csv", "file2.csv"],
+	"sourceTables": ["file1", "file2"],
+	"destinationFile": "dest-file2.csv",
+	"destinationBucket": "parser2-stage",
+	"destinationTable": "dest-file2",
+	"sqlBucket": "sql-bucket",
+	"sqlFile": "sql2.sql",
+        "fileSystem": "file"
+}]

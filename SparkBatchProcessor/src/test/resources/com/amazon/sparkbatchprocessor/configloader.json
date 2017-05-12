@@ -1,0 +1,22 @@
+{
+    "dataSource": "loader",
+    "destinationBucket": "/tmp",
+    "sourceBucket": "/tmp",
+    "sqlBucket": "sql-bucket",
+    "fileSystem": "file",
+    "mappings": [
+        {
+            "sourceFiles": [
+                "flatfile.csv"
+            ],
+            "sqlFile": "/tmp/sql1.sql"
+        },
+        {
+            "sourceFiles": [
+                "flatfile.csv"
+            ],
+            "sqlFile": "/tmp/sql2.sql",
+            "overflowColumns": [ "Location", "PatientId"]
+        }
+    ]
+}

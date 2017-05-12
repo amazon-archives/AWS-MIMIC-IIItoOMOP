@@ -1,0 +1,68 @@
+{
+    "dataSource": "mimic",
+    "destinationBucket": "<your s3 bucket>",
+    "sourceBucket": "<your s3 bucket>",
+    "sqlBucket": "<your s3 bucket>",
+    "fileSystem": "s3a",
+    "mappings": [
+		{
+            "sourceFiles": [
+                "mimic3/patients/person.csv" 
+            ],
+            "sqlFile": "transformationSQL/person.sql"
+        }
+        ,{
+            "sourceFiles": [
+                "mimic3/icustays/icustays.csv"
+            ],
+            "sqlFile": "transformationSQL/visit-occurrence.sql"
+        },{
+            "sourceFiles": [
+                "mimic3/labevents/labevents.csv"
+				, "mimic3/d-labitems/d-labitems.csv"
+            ],
+            "sqlFile": "transformationSQL/specimen.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/caregivers/caregivers.csv"            
+				],
+            "sqlFile": "transformationSQL/provider.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/cptevents/cptevents.csv"            
+				],
+            "sqlFile": "transformationSQL/procedure-occurrence.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/d-labitems/d-labitems.csv",
+				"mimic3/labevents/labevents.csv",
+				"mimic3/icustays/icustays.csv"            
+				],
+            "sqlFile": "transformationSQL/measurement.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/patients/person.csv"            
+				],
+            "sqlFile": "transformationSQL/death.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/diagnoses-icd/diagnoses-icd.csv"            
+				],
+            "sqlFile": "transformationSQL/condition-occurrence.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/inputevents-cv/inputevents-cv.csv",
+				"mimic3/inputevents-mv/inputevents-mv.csv",
+				"mimic3/d-items/d-items.csv"            
+				],
+            "sqlFile": "transformationSQL/drug-exposure.sql"
+        },{
+            "sourceFiles": [
+				"mimic3/noteevents/noteevents.csv",
+				"mimic3/icustays/icustays.csv"     
+				],
+            "sqlFile": "transformationSQL/note.sql",
+            "overflowColumns": [ "note_text"]
+        }
+    ]
+}

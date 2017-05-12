@@ -1,0 +1,5 @@
+DoctorName,SpecialtyId,Location,PatientId
+Doctor A,1,ED,Patient 2
+Doctor B,4,Clinic,Patient 3
+Doctor C,3,ED,Patient 1
+Doctor B,1,IP,Patient 1

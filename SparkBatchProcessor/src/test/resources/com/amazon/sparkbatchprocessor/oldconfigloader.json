@@ -1,0 +1,11 @@
+[{
+	"sourceBucket": "/tmp",
+	"sourceFiles": ["fake.csv"],
+	"sourceTables": ["fake"],
+	"destinationFile": "stage-fake.csv",
+	"destinationBucket": "/tmp",
+	"destinationTable": "dest-file1",
+	"sqlBucket": "sql-bucket",
+	"sqlFile": "/tmp/sql1.sql",
+        "fileSystem": "file"
+}]

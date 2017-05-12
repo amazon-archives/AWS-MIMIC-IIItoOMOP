@@ -1,0 +1,28 @@
+{
+    "dataSource": "mimic",
+    "destinationBucket": "bucket1-stage",
+    "sourceBucket": "bucket1-raw",
+    "sqlBucket": "sql-bucket",
+    "fileSystem": "file",
+    "mappings": [
+        {
+            "sourceFiles": [
+                "file1.csv"
+            ],
+            "sqlFile": "sql/sql1.sql"
+        }
+        ,{
+            "sourceFiles": [
+                "file1.csv", "file2.csv"
+            ],
+            "sqlFile": "sql2.sql"
+        }
+        ,{
+            "sourceFiles": [
+                "file1.csv"
+            ],
+            "sqlFile": "sql2.sql",
+            "overflowColumns": [ "overflow1", "overflow2"]
+        }
+    ]
+}
